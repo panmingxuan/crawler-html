@@ -13,6 +13,9 @@
     "@types/react-dom": "^17.0.1",
     "antd": "^3.26.17",
     "axios": "^0.21.1",
+    "echarts": "^4.6.0",
+    "echarts-for-react": "^2.0.16",
+    "moment": "^2.24.0",
     "qs": "^6.9.6",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
@@ -46,6 +49,7 @@
     ]
   },
   "devDependencies": {
+    "@types/echarts": "^4.9.4",
     "@types/qs": "^6.9.5",
     "@types/react-router-dom": "^5.1.7"
   }

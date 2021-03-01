@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import { Button, message } from 'antd';
 import axios from 'axios';
+import ReactECharts from 'echarts-for-react';
+import moment from 'moment';
 import './style.css';
 
 // interface State {
@@ -18,11 +20,32 @@ import './style.css';
 //     isLogin: true,
 //   };
 // }
+
+interface CourseItem {
+  title: string;
+  count: number;
+}
+
+interface State {
+  loaded: boolean;
+  isLogin: boolean;
+  data: {
+    [key: string]: CourseItem[];
+  };
+}
+
+interface LinData {
+  name: string;
+  type: 'line';
+  data: number[];
+}
+
 class Home extends Component {
   //相对简单的写法
-  state = {
+  state: State = {
     loaded: false,
     isLogin: true,
+    data: {},
   };
 
   componentDidMount() {
@@ -35,6 +58,14 @@ class Home extends Component {
       } else {
         this.setState({
           loaded: true,
+        });
+      }
+    });
+
+    axios.get('/api/showData').then((res) => {
+      if (res.data?.data) {
+        this.setState({
+          data: res.data.data,
         });
       }
     });
@@ -62,19 +93,78 @@ class Home extends Component {
     });
   };
 
+  //使用描述文件限定数据类型
+  getOption: () => echarts.EChartOption = () => {
+    const { data } = this.state;
+    const courseNmaes: string[] = [];
+    const times: string[] = [];
+    const tempData: {
+      [key: string]: number[];
+    } = {};
+    for (let i in data) {
+      const item = data[i];
+      times.push(moment(Number(i)).format('MM-DD HH:mm'));
+      item.forEach((innerItem) => {
+        const { title, count } = innerItem;
+        //过滤重复title
+        if (courseNmaes.indexOf(title) === -1) {
+          courseNmaes.push(title);
+        }
+        tempData[title] ? tempData[title].push(count) : (tempData[title] = [count]);
+      });
+    }
+    const result: LinData[] = [];
+    for (let i in tempData) {
+      result.push({
+        name: i,
+        type: 'line',
+        data: tempData[i],
+      });
+    }
+    return {
+      title: {
+        text: '课程在线学习人数',
+      },
+      tooltip: {
+        trigger: 'axis',
+      },
+      legend: {
+        data: courseNmaes,
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true,
+      },
+      xAxis: {
+        type: 'category',
+        boundaryGap: false,
+        data: times,
+      },
+      yAxis: {
+        type: 'value',
+      },
+      series: result,
+    };
+  };
+
   render() {
     const { isLogin, loaded } = this.state;
     if (isLogin) {
       if (loaded) {
         return (
           <div className='home-page'>
-            <Button type='primary' onClick={this.handleCrowllerClick} style={{ marginLeft: '6px' }}>
-              爬取
-            </Button>
-            <Button type='primary'>展示</Button>
-            <Button type='primary' onClick={this.handleLogoutClick}>
-              退出
-            </Button>
+            <div className='buttons'>
+              <Button type='primary' onClick={this.handleCrowllerClick} style={{ marginRight: '25px' }}>
+                爬取
+              </Button>
+              <Button type='primary' onClick={this.handleLogoutClick}>
+                退出
+              </Button>
+            </div>
+
+            <ReactECharts option={this.getOption()} />
           </div>
         );
       }
