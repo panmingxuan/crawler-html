@@ -21,18 +21,10 @@ import './style.css';
 //   };
 // }
 
-interface CourseItem {
-  title: string;
-  count: number;
-}
-
 interface State {
   loaded: boolean;
   isLogin: boolean;
-  data: DataStructure;
-}
-interface DataStructure {
-  [key: string]: CourseItem[];
+  data: responseResult.DataStructure;
 }
 
 // interface LinData {
@@ -51,7 +43,7 @@ class Home extends Component {
 
   componentDidMount() {
     request.get('/api/isLogin').then((res) => {
-      const data: boolean = res.data;
+      const data: responseResult.isLogin = res.data;
       if (!data) {
         this.setState({
           loaded: true,
@@ -65,7 +57,7 @@ class Home extends Component {
     });
 
     request.get('/api/showData').then((res) => {
-      const data: DataStructure = res.data;
+      const data: responseResult.DataStructure = res.data;
       if (data) {
         this.setState({
           data,
@@ -76,7 +68,7 @@ class Home extends Component {
   //退出方法
   handleLogoutClick = (e: React.MouseEvent) => {
     request.get('/api/logout').then((res) => {
-      const data: boolean = res.data;
+      const data: responseResult.logout = res.data;
       if (data) {
         this.setState({
           isLogin: false,
@@ -89,7 +81,7 @@ class Home extends Component {
   //点击调用爬虫
   handleCrowllerClick = (e: React.MouseEvent) => {
     request.get('/api/getData').then((res) => {
-      const data: boolean = res.data;
+      const data: responseResult.getData = res.data;
       if (data) {
         message.success('爬取成功');
       } else {
