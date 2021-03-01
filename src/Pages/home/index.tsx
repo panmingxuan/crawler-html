@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import { Button, message } from 'antd';
-import axios from 'axios';
+import request from '../../request';
 import ReactECharts from 'echarts-for-react';
 import moment from 'moment';
 import './style.css';
@@ -29,16 +29,17 @@ interface CourseItem {
 interface State {
   loaded: boolean;
   isLogin: boolean;
-  data: {
-    [key: string]: CourseItem[];
-  };
+  data: DataStructure;
+}
+interface DataStructure {
+  [key: string]: CourseItem[];
 }
 
-interface LinData {
-  name: string;
-  type: 'line';
-  data: number[];
-}
+// interface LinData {
+//   name: string;
+//   type: 'line';
+//   data: number[];
+// }
 
 class Home extends Component {
   //相对简单的写法
@@ -49,8 +50,9 @@ class Home extends Component {
   };
 
   componentDidMount() {
-    axios.get('/api/isLogin').then((res) => {
-      if (!res.data?.data) {
+    request.get('/api/isLogin').then((res) => {
+      const data: boolean = res.data;
+      if (!data) {
         this.setState({
           loaded: true,
           isLogin: false,
@@ -62,18 +64,20 @@ class Home extends Component {
       }
     });
 
-    axios.get('/api/showData').then((res) => {
-      if (res.data?.data) {
+    request.get('/api/showData').then((res) => {
+      const data: DataStructure = res.data;
+      if (data) {
         this.setState({
-          data: res.data.data,
+          data,
         });
       }
     });
   }
   //退出方法
   handleLogoutClick = (e: React.MouseEvent) => {
-    axios.get('/api/logout').then((res) => {
-      if (res.data?.data) {
+    request.get('/api/logout').then((res) => {
+      const data: boolean = res.data;
+      if (data) {
         this.setState({
           isLogin: false,
         });
@@ -84,8 +88,9 @@ class Home extends Component {
   };
   //点击调用爬虫
   handleCrowllerClick = (e: React.MouseEvent) => {
-    axios.get('/api/getData').then((res) => {
-      if (res.data?.data) {
+    request.get('/api/getData').then((res) => {
+      const data: boolean = res.data;
+      if (data) {
         message.success('爬取成功');
       } else {
         message.error('爬取失败');
@@ -113,7 +118,7 @@ class Home extends Component {
         tempData[title] ? tempData[title].push(count) : (tempData[title] = [count]);
       });
     }
-    const result: LinData[] = [];
+    const result: echarts.EChartOption.Series[] = [];
     for (let i in tempData) {
       result.push({
         name: i,

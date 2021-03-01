@@ -1,7 +1,7 @@
 import React from 'react';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 import LoginPage from './Pages/Login';
-import Home from './Pages/home';
+import Home from './Pages/Home';
 
 const App: React.FC = () => {
   return (

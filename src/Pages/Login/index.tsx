@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Form, Icon, Input, Button, message } from 'antd';
-import axios from 'axios';
+import request from '../../request';
 import qs from 'qs';
 import { Redirect } from 'react-router-dom';
 //引入lib库里定义的组件类型
@@ -26,19 +26,20 @@ class LoginForm extends Component<Props> {
     this.props.form.validateFields((err: any, values) => {
       //校验无问题后提交登录数据
       if (!err) {
-        axios
+        request
           .post('/api/login', qs.stringify({ password: values.password }), {
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
             },
           })
           .then((res) => {
-            if (res.data?.data) {
+            const data: boolean = res.data;
+            if (data) {
               this.setState({
                 isLogin: true,
               });
             } else {
-              message.error(res.data.errMsg);
+              message.error('登陆失败');
             }
           });
       }
